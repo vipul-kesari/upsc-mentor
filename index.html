@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
+  <meta name="description" content="UPSC Mentor — India's most trusted mentorship platform for IAS/IPS Civil Services aspirants. Expert guidance, structured courses, and proven results." />
+  <meta name="keywords" content="UPSC, IAS, IPS, Civil Services, Mentorship, Coaching, UPSC Preparation" />
+  <meta name="author" content="UPSC Mentor" />
+  <meta property="og:title" content="UPSC Mentor — Achieve Your IAS Dream" />
+  <meta property="og:description" content="Expert UPSC mentorship with a 95% success rate. Join 500+ aspirants today." />
+  <meta property="og:type" content="website" />
+
+  <title>UPSC Mentor — Achieve Your IAS Dream</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* Page-specific extras */
+    .hero-float-card {
+      position: absolute;
+      right: 5%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--radius-2xl);
+      padding: 1.5rem;
+      width: 220px;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(-50%) translateY(0); }
+      50%      { transform: translateY(-50%) translateY(-12px); }
+    }
+
+    .hero-float-card .fc-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .hero-float-card .fc-row:last-child { border-bottom: none; }
+    .hero-float-card .fc-icon {
+      width: 34px; height: 34px;
+      background: rgba(245,158,11,0.15);
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent); font-size: 0.9rem; flex-shrink: 0;
+    }
+    .hero-float-card .fc-label { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+    .hero-float-card .fc-value { font-size: 0.88rem; font-weight: 700; color: #fff; }
+
+    @media (max-width: 900px) { .hero-float-card { display: none; } }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════
+       NAVBAR
+       ═══════════════════════════════════════════════════════ -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container navbar-inner">
+      <!-- Logo -->
+      <a href="index.html" class="navbar-logo" aria-label="UPSC Mentor Home">
+        <div class="logo-icon" aria-hidden="true">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <span>UPSC <span class="logo-highlight">Mentor</span></span>
+      </a>
+
+      <!-- Hamburger (mobile) -->
+      <button class="navbar-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <!-- Nav Links -->
+      <ul class="navbar-nav" role="list">
+        <li><a href="index.html" class="nav-link active" aria-current="page">
+          <i class="fas fa-home" aria-hidden="true"></i> Home
+        </a></li>
+        <li><a href="apply.html" class="nav-link">
+          <i class="fas fa-file-alt" aria-hidden="true"></i> Apply Now
+        </a></li>
+        <li><a href="apply.html" class="nav-link nav-cta">
+          <i class="fas fa-rocket" aria-hidden="true"></i> Get Started
+        </a></li>
+        <li id="navAuthItem"></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════
+       HERO SECTION
+       ═══════════════════════════════════════════════════════ -->
+  <section class="hero" aria-label="Hero">
+    <div class="hero-pattern" aria-hidden="true"></div>
+
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge animate-fade-up">
+          <i class="fas fa-star" aria-hidden="true"></i>
+          <span id="heroBadge">India's #1 UPSC Mentorship Platform</span>
+        </div>
+
+        <h1 class="animate-fade-up delay-1">
+          <span id="heroTitleMain">Your Journey to</span><br>
+          <span class="highlight" id="heroTitleHighlight">IAS Starts Here</span>
+        </h1>
+
+        <p class="animate-fade-up delay-2" id="heroSubtitle">
+          Join hundreds of successful civil servants who cracked UPSC with our structured
+          mentorship, expert faculty, and proven study methodology. Turn your IAS dream
+          into reality — one milestone at a time.
+        </p>
+
+        <div class="hero-actions animate-fade-up delay-3">
+          <a href="apply.html" class="btn btn-primary btn-lg" id="heroCtaBtn">
+            <i class="fas fa-rocket" aria-hidden="true"></i>
+            Apply Now — It's Free
+          </a>
+          <button id="learnMoreBtn" class="btn btn-secondary btn-lg">
+            <i class="fas fa-play-circle" aria-hidden="true"></i>
+            Explore Courses
+          </button>
+        </div>
+      </div>
+
+      <!-- Floating info card (desktop only) -->
+      <div class="hero-float-card" aria-hidden="true">
+        <div class="fc-row">
+          <div class="fc-icon"><i class="fas fa-users"></i></div>
+          <div>
+            <div class="fc-label" id="fcLabel0">Active Students</div>
+            <div class="fc-value" id="fcValue0">500+</div>
+          </div>
+        </div>
+        <div class="fc-row">
+          <div class="fc-icon"><i class="fas fa-trophy"></i></div>
+          <div>
+            <div class="fc-label" id="fcLabel1">Success Rate</div>
+            <div class="fc-value" id="fcValue1">95%</div>
+          </div>
+        </div>
+        <div class="fc-row">
+          <div class="fc-icon"><i class="fas fa-book"></i></div>
+          <div>
+            <div class="fc-label" id="fcLabel2">Courses</div>
+            <div class="fc-value" id="fcValue2">10+</div>
+          </div>
+        </div>
+        <div class="fc-row">
+          <div class="fc-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+          <div>
+            <div class="fc-label" id="fcLabel3">Expert Mentors</div>
+            <div class="fc-value" id="fcValue3">20+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       STATS BAR
+       ═══════════════════════════════════════════════════════ -->
+  <div class="stats-bar" aria-label="Platform statistics">
+    <div class="container">
+      <div class="stats-inner">
+        <div class="stat-item">
+          <span class="stat-number" data-target="500" data-suffix="+" data-stat-idx="0">0+</span>
+          <span class="stat-label" data-stat-idx="0">Students Enrolled</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" data-target="10" data-suffix="+" data-stat-idx="1">0+</span>
+          <span class="stat-label" data-stat-idx="1">Expert Courses</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" data-target="95" data-suffix="%" data-stat-idx="2">0%</span>
+          <span class="stat-label" data-stat-idx="2">Success Rate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       ABOUT SECTION
+       ═══════════════════════════════════════════════════════ -->
+  <section class="section about-section" id="about" aria-labelledby="about-heading">
+    <div class="container">
+      <div class="about-grid">
+
+        <!-- Text Content -->
+        <div class="about-text">
+          <span class="section-label">About Us</span>
+          <h2 id="about-heading"><span id="aboutHeading">Mentorship Rooted in Experience &amp; Excellence</span>
+          </h2>
+          <p id="aboutPara1">
+            UPSC Mentor was founded by a team of IAS and IPS officers who believe that
+            quality civil services guidance should be accessible to every aspirant across
+            India — regardless of background or geography.
+          </p>
+          <p id="aboutPara2">
+            Our pedagogy is built on decades of combined UPSC experience, real exam insights,
+            and a student-first approach that focuses on deep conceptual clarity and answer
+            writing skills over rote learning.
+          </p>
+
+          <ul class="about-list">
+            <li>
+              <i class="fas fa-check-circle" aria-hidden="true"></i>
+              <span id="aboutBullet0">Mentors who have personally cleared UPSC CSE</span>
+            </li>
+            <li>
+              <i class="fas fa-check-circle" aria-hidden="true"></i>
+              <span id="aboutBullet1">Personalised study plans tailored to your strengths</span>
+            </li>
+            <li>
+              <i class="fas fa-check-circle" aria-hidden="true"></i>
+              <span id="aboutBullet2">Weekly live doubt-clearing sessions &amp; mock interviews</span>
+            </li>
+            <li>
+              <i class="fas fa-check-circle" aria-hidden="true"></i>
+              <span id="aboutBullet3">Comprehensive current affairs and newspaper analysis</span>
+            </li>
+            <li>
+              <i class="fas fa-check-circle" aria-hidden="true"></i>
+              <span id="aboutBullet4">24/7 access to study materials and recorded lectures</span>
+            </li>
+          </ul>
+
+          <a href="apply.html" class="btn btn-outline" style="margin-top:0.75rem">
+            Start Your Journey <i class="fas fa-arrow-right" aria-hidden="true"></i>
+          </a>
+        </div>
+
+        <!-- Image Placeholder -->
+        <div class="about-image-placeholder" aria-label="Mentor illustration">
+          <i class="fas fa-user-tie placeholder-icon" aria-hidden="true"></i>
+          <div class="placeholder-text">
+            <div style="color:rgba(255,255,255,0.7);font-weight:600;font-size:1rem">Your Success Story</div>
+            <div style="color:rgba(255,255,255,0.4);font-size:0.85rem;margin-top:0.25rem">Awaits You Here</div>
+          </div>
+          <!-- Decorative elements -->
+          <div style="
+            position:absolute; bottom:1.5rem; left:1.5rem;
+            background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.25);
+            border-radius:var(--radius-lg); padding:0.6rem 1rem;
+            display:flex; align-items:center; gap:0.5rem;
+          ">
+            <i class="fas fa-award" style="color:var(--accent);font-size:1.1rem" aria-hidden="true"></i>
+            <div>
+              <div style="color:#fff;font-size:0.78rem;font-weight:700">Since 2015</div>
+              <div style="color:rgba(255,255,255,0.5);font-size:0.7rem">Trusted Mentors</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       COURSES SECTION
+       ═══════════════════════════════════════════════════════ -->
+  <section class="section courses-section" id="courses" aria-labelledby="courses-heading">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Our Programs</span>
+        <h2 id="courses-heading">Explore Our UPSC Courses</h2>
+        <p>
+          Carefully structured programs for every stage of your UPSC journey —
+          from foundation to final interview.
+        </p>
+      </div>
+
+      <!-- Exam Type Tabs -->
+      <div class="exam-tabs" role="tablist" aria-label="Select exam type" style="
+        display:flex; gap:0.5rem; justify-content:center; flex-wrap:wrap;
+        margin-bottom:2rem;
+      ">
+        <button class="exam-tab-btn active" data-exam="UPSC" role="tab" aria-selected="true" style="
+          padding:0.55rem 1.4rem; border-radius:2rem; border:2px solid var(--primary);
+          background:var(--primary); color:#fff; font-weight:700; font-size:0.9rem;
+          cursor:pointer; transition:all 0.2s;
+        ">
+          <i class="fas fa-landmark" aria-hidden="true"></i> UPSC
+        </button>
+        <button class="exam-tab-btn" data-exam="UPPCS" role="tab" aria-selected="false" style="
+          padding:0.55rem 1.4rem; border-radius:2rem; border:2px solid var(--primary);
+          background:transparent; color:var(--primary); font-weight:700; font-size:0.9rem;
+          cursor:pointer; transition:all 0.2s;
+        ">
+          <i class="fas fa-map-marker-alt" aria-hidden="true"></i> UPPCS
+        </button>
+        <button class="exam-tab-btn" data-exam="BPSC" role="tab" aria-selected="false" style="
+          padding:0.55rem 1.4rem; border-radius:2rem; border:2px solid var(--primary);
+          background:transparent; color:var(--primary); font-weight:700; font-size:0.9rem;
+          cursor:pointer; transition:all 0.2s;
+        ">
+          <i class="fas fa-map-marker-alt" aria-hidden="true"></i> BPSC
+        </button>
+      </div>
+
+      <!-- Dynamically populated by JS -->
+      <div class="courses-grid" id="courses-grid" aria-label="Available courses" role="list">
+        <!-- Course cards injected by renderCourses() -->
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="loader-ring" style="margin:0 auto 1rem"></div>
+          <p>Loading courses…</p>
+        </div>
+      </div>
+
+      <div class="text-center" style="margin-top:2.5rem">
+        <a href="apply.html" class="btn btn-primary btn-lg">
+          <i class="fas fa-file-alt" aria-hidden="true"></i>
+          Apply for Any Course
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       WHY CHOOSE US
+       ═══════════════════════════════════════════════════════ -->
+  <section class="section features-section" id="features" aria-labelledby="features-heading">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-label">Why UPSC Mentor</span>
+        <h2 id="features-heading">What Sets Us Apart</h2>
+        <p>We combine expert mentorship with cutting-edge tools to give you the best shot at cracking UPSC.</p>
+      </div>
+
+      <div class="features-grid">
+
+        <article class="feature-card" id="feature0">
+          <div class="feature-icon" aria-hidden="true">
+            <i class="fas fa-chalkboard-teacher"></i>
+          </div>
+          <h3>Expert Mentors</h3>
+          <p>Learn directly from IAS/IPS officers and UPSC specialists with first-hand knowledge of what it takes to succeed.</p>
+        </article>
+
+        <article class="feature-card" id="feature1">
+          <div class="feature-icon" aria-hidden="true">
+            <i class="fas fa-route"></i>
+          </div>
+          <h3>Personalised Roadmap</h3>
+          <p>Every student gets a customised 12-month study plan aligned to their optional subject, strengths, and target rank.</p>
+        </article>
+
+        <article class="feature-card" id="feature2">
+          <div class="feature-icon" aria-hidden="true">
+            <i class="fas fa-pen-nib"></i>
+          </div>
+          <h3>Answer Writing Labs</h3>
+          <p>Daily mains answer writing practice with detailed feedback from mentors — the single biggest differentiator in UPSC.</p>
+        </article>
+
+        <article class="feature-card" id="feature3">
+          <div class="feature-icon" aria-hidden="true">
+            <i class="fas fa-satellite-dish"></i>
+          </div>
+          <h3>Live Sessions &amp; Tests</h3>
+          <p>Weekly live classes, topic-wise tests, full-length mock exams, and interview simulations with detailed analytics.</p>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       CTA BANNER
+       ═══════════════════════════════════════════════════════ -->
+  <section aria-label="Call to action" style="
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    padding: 4rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  ">
+    <div style="
+      position:absolute; inset:0;
+      background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0);
+      background-size: 36px 36px;
+    " aria-hidden="true"></div>
+    <div class="container" style="position:relative;z-index:1">
+      <h2 id="ctaHeading" style="font-size:clamp(1.6rem,3vw,2.4rem);font-weight:800;color:#fff;margin-bottom:0.75rem">
+        Ready to Start Your <span style="color:var(--accent)">IAS Journey?</span>
+      </h2>
+      <p id="ctaSubtext" style="color:rgba(255,255,255,0.7);font-size:1.05rem;margin-bottom:2rem;max-width:520px;margin-left:auto;margin-right:auto">
+        Applications are open. Limited seats available for the next batch. Apply today — it's completely free.
+      </p>
+      <a href="apply.html" class="btn btn-primary btn-lg" style="margin-right:1rem">
+        <i class="fas fa-paper-plane" aria-hidden="true"></i> Apply Now
+      </a>
+      <a href="#about" class="btn btn-secondary btn-lg">
+        <i class="fas fa-info-circle" aria-hidden="true"></i> Learn More
+      </a>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+        UPSC <span>Mentor</span>
+      </div>
+      <p style="font-size:0.82rem">
+        &copy; <span id="footerYear"></span> UPSC Mentor. All rights reserved. |
+        Empowering India's future civil servants.
+      </p>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="apply.html">Apply</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Scroll to Top -->
+  <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top">
+    <i class="fas fa-chevron-up" aria-hidden="true"></i>
+  </button>
+
+  <style>
+    .exam-tab-btn { outline:none; }
+    .exam-tab-btn.active {
+      background: var(--primary) !important;
+      color: #fff !important;
+    }
+    .exam-tab-btn:not(.active) {
+      background: transparent !important;
+      color: var(--primary) !important;
+    }
+    .exam-tab-btn:hover:not(.active) {
+      background: rgba(30,58,95,0.08) !important;
+    }
+  </style>
+
+  <!-- Firebase SDK (compat) — must load before script.js -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+  <script>
+    // Set footer year
+    document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+    // Load site config first so stat animation uses correct values, then init page
+    getSiteConfig().then(config => {
+      applySiteConfig(config);
+      initHomePage();
+    });
+  </script>
+</body>
+</html>

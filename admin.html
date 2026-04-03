@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="DENY" />
+  <meta http-equiv="Referrer-Policy" content="no-referrer" />
+  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="description" content="UPSC Mentor Admin Panel — Manage admissions and courses." />
+
+  <title>Admin Panel — UPSC Mentor</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    /* ── Admin-specific extras ───────────────────────── */
+
+    /* Stats row at top of dashboard */
+    .dash-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .dash-stat-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition-normal);
+    }
+    .dash-stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .dash-stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .dash-stat-icon.blue {
+      background: rgba(30,58,95,0.1);
+      color: var(--primary);
+    }
+    .dash-stat-icon.gold {
+      background: rgba(245,158,11,0.1);
+      color: var(--accent);
+    }
+    .dash-stat-icon.green {
+      background: rgba(16,185,129,0.1);
+      color: var(--success);
+    }
+
+    .dash-stat-num {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .dash-stat-lbl {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      margin-top: 0.1rem;
+    }
+
+    /* Course count badge next to panel header */
+    .courses-count-badge {
+      background: var(--primary);
+      color: var(--accent);
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-full);
+    }
+
+    /* Add course inline form rows */
+    .add-course-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      align-items: end;
+    }
+
+    @media (max-width: 640px) {
+      .add-course-row { grid-template-columns: 1fr; }
+    }
+
+    /* Admin header bar (inside dashboard) */
+    .admin-topbar {
+      background: var(--primary-dark);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 0.85rem 0;
+      margin-bottom: 0;
+    }
+
+    .admin-topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .admin-topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #fff;
+      font-size: 0.88rem;
+    }
+
+    .admin-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary-dark);
+      font-size: 0.9rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .admin-name { font-weight: 700; }
+    .admin-role { color: rgba(255,255,255,0.5); font-size: 0.78rem; }
+
+    /* Search bar for admissions */
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-tertiary);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0.5rem 0.9rem;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      transition: var(--transition-fast);
+      width: 240px;
+      max-width: 100%;
+    }
+
+    .search-bar:focus-within {
+      border-color: var(--primary);
+      background: var(--bg-primary);
+      box-shadow: 0 0 0 3px rgba(30,58,95,0.1);
+    }
+
+    .search-bar input {
+      border: none;
+      background: none;
+      outline: none;
+      font-size: 0.88rem;
+      color: var(--text-primary);
+      width: 100%;
+    }
+
+    .search-bar input::placeholder { color: var(--text-light); }
+    .search-bar i { color: var(--text-light); flex-shrink: 0; }
+
+
+    /* Password toggle button */
+    .password-wrapper {
+      position: relative;
+    }
+    .password-wrapper .form-control {
+      padding-right: 3rem;
+    }
+    .password-toggle {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 0.25rem;
+      transition: color 0.15s;
+    }
+    .password-toggle:hover { color: var(--primary); }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════
+       NAVBAR
+       ═══════════════════════════════════════════════════════ -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container navbar-inner">
+      <a href="index.html" class="navbar-logo" aria-label="UPSC Mentor Home">
+        <div class="logo-icon" aria-hidden="true">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <span>UPSC <span class="logo-highlight">Mentor</span></span>
+      </a>
+
+      <button class="navbar-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="navbar-nav" role="list">
+        <li><a href="index.html" class="nav-link">
+          <i class="fas fa-home" aria-hidden="true"></i> Home
+        </a></li>
+        <li><a href="apply.html" class="nav-link">
+          <i class="fas fa-file-alt" aria-hidden="true"></i> Apply Now
+        </a></li>
+        <li><a href="apply.html" class="nav-link nav-cta">
+          <i class="fas fa-rocket" aria-hidden="true"></i> Get Started
+        </a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════
+       LOGIN SECTION
+       ═══════════════════════════════════════════════════════ -->
+  <section class="admin-login-wrapper" id="loginSection" aria-label="Admin login">
+    <div class="login-card animate-fade-up">
+      <div class="login-header">
+        <div class="login-icon" aria-hidden="true">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h2>Admin Portal</h2>
+        <p>Sign in to manage admissions and courses</p>
+      </div>
+
+      <form id="loginForm" novalidate autocomplete="off">
+
+        <div class="form-group">
+          <label class="form-label" for="adminUsername">Email Address</label>
+          <input
+            type="email"
+            id="adminUsername"
+            name="email"
+            class="form-control"
+            placeholder="Enter admin email"
+            required
+            autocomplete="email"
+            autofocus
+            aria-describedby="loginError"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="adminPassword">Password</label>
+          <div class="password-wrapper">
+            <input
+              type="password"
+              id="adminPassword"
+              name="password"
+              class="form-control"
+              placeholder="Enter password"
+              required
+              autocomplete="current-password"
+              aria-describedby="loginError"
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              id="togglePassword"
+              aria-label="Toggle password visibility"
+            >
+              <i class="fas fa-eye" id="togglePasswordIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="alert alert-error hidden" id="loginError" role="alert" aria-live="assertive">
+          <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+          <span></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.25rem">
+          <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+          Sign In
+        </button>
+
+      </form>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       ADMIN DASHBOARD (hidden until login)
+       ═══════════════════════════════════════════════════════ -->
+  <div id="dashboardSection" class="hidden" aria-label="Admin dashboard">
+
+    <!-- Admin top bar -->
+    <div class="admin-topbar" role="banner">
+      <div class="container admin-topbar-inner">
+        <div class="admin-topbar-left">
+          <div class="admin-avatar" aria-hidden="true">A</div>
+          <div>
+            <div class="admin-name">Administrator</div>
+            <div class="admin-role">UPSC Mentor — Admin Panel</div>
+          </div>
+        </div>
+        <button id="logoutBtn" class="btn btn-sm" style="
+          background:rgba(239,68,68,0.12);color:#fca5a5;border-color:rgba(239,68,68,0.25)
+        " aria-label="Logout">
+          <i class="fas fa-sign-out-alt" aria-hidden="true"></i> Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Dashboard body -->
+    <div class="admin-dashboard">
+      <div class="container">
+
+        <!-- Header -->
+        <div class="dashboard-header">
+          <div class="dashboard-title">
+            <h2><i class="fas fa-tachometer-alt" style="color:var(--accent);margin-right:0.5rem" aria-hidden="true"></i>Dashboard</h2>
+            <p>Manage your admissions and course catalogue from one place.</p>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="dash-stats" role="region" aria-label="Quick statistics">
+          <div class="dash-stat-card">
+            <div class="dash-stat-icon blue" aria-hidden="true">
+              <i class="fas fa-users"></i>
+            </div>
+            <div>
+              <div class="dash-stat-num" id="statTotalAdmissions">0</div>
+              <div class="dash-stat-lbl">Total Applications</div>
+            </div>
+          </div>
+          <div class="dash-stat-card">
+            <div class="dash-stat-icon gold" aria-hidden="true">
+              <i class="fas fa-book-open"></i>
+            </div>
+            <div>
+              <div class="dash-stat-num" id="statTotalCourses">0</div>
+              <div class="dash-stat-lbl">Active Courses</div>
+            </div>
+          </div>
+          <div class="dash-stat-card">
+            <div class="dash-stat-icon green" aria-hidden="true">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <div>
+              <div class="dash-stat-num" id="statTodayAdmissions">0</div>
+              <div class="dash-stat-lbl">Today's Applications</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="tab-nav" role="tablist" aria-label="Dashboard sections">
+          <button
+            class="tab-btn active"
+            data-tab="admissions"
+            role="tab"
+            aria-selected="true"
+            aria-controls="tab-admissions"
+            id="tab-btn-admissions"
+          >
+            <i class="fas fa-users" aria-hidden="true"></i>
+            Admissions
+            <span class="badge-count" id="admissionsCount" aria-label="number of admissions">0</span>
+          </button>
+          <button
+            class="tab-btn"
+            data-tab="courses"
+            role="tab"
+            aria-selected="false"
+            aria-controls="tab-courses"
+            id="tab-btn-courses"
+          >
+            <i class="fas fa-book-open" aria-hidden="true"></i>
+            Courses
+            <span class="badge-count" id="coursesCount" aria-label="number of courses">0</span>
+          </button>
+          <button
+            class="tab-btn"
+            data-tab="site-settings"
+            role="tab"
+            aria-selected="false"
+            aria-controls="tab-site-settings"
+            id="tab-btn-site-settings"
+          >
+            <i class="fas fa-paint-brush" aria-hidden="true"></i>
+            Site Settings
+          </button>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             TAB 1: ADMISSIONS
+             ───────────────────────────────────────────── -->
+        <div
+          class="tab-content active"
+          id="tab-admissions"
+          role="tabpanel"
+          aria-labelledby="tab-btn-admissions"
+        >
+          <div class="panel-card">
+            <div class="panel-header">
+              <h3>
+                <i class="fas fa-inbox" aria-hidden="true"></i>
+                Admission Applications
+              </h3>
+              <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap">
+                <!-- Search -->
+                <div class="search-bar" role="search">
+                  <i class="fas fa-search" aria-hidden="true"></i>
+                  <input
+                    type="search"
+                    id="admissionsSearch"
+                    placeholder="Search by name or course…"
+                    aria-label="Search admissions"
+                  />
+                </div>
+                <!-- Export CSV -->
+                <button id="exportCsvBtn" class="btn btn-success btn-sm">
+                  <i class="fas fa-file-csv" aria-hidden="true"></i>
+                  Export CSV
+                </button>
+                <!-- Clear All (with confirmation) -->
+                <button id="clearAdmissionsBtn" class="btn btn-danger btn-sm">
+                  <i class="fas fa-trash" aria-hidden="true"></i>
+                  Clear All
+                </button>
+              </div>
+            </div>
+
+            <!-- Empty state -->
+            <div class="empty-state hidden" id="admissionsEmpty">
+              <i class="fas fa-inbox" aria-hidden="true"></i>
+              <p>No admission applications yet.<br>
+                <a href="apply.html" style="color:var(--primary);font-weight:600">Apply for a course</a> to see entries here.
+              </p>
+            </div>
+
+            <!-- Table -->
+            <div id="admissionsTableWrapper">
+              <div class="table-wrapper">
+                <table class="data-table" aria-label="Admissions table">
+                  <thead>
+                    <tr>
+                      <th scope="col"><i class="fas fa-user" aria-hidden="true"></i> Name</th>
+                      <th scope="col"><i class="fas fa-envelope" aria-hidden="true"></i> Email</th>
+                      <th scope="col"><i class="fas fa-phone" aria-hidden="true"></i> Phone</th>
+                      <th scope="col"><i class="fas fa-graduation-cap" aria-hidden="true"></i> Education</th>
+                      <th scope="col"><i class="fas fa-flag" aria-hidden="true"></i> Exam</th>
+                      <th scope="col"><i class="fas fa-book" aria-hidden="true"></i> Course Interest</th>
+                      <th scope="col"><i class="fas fa-calendar" aria-hidden="true"></i> Submitted</th>
+                      <th scope="col" style="text-align:center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admissionsBody">
+                    <!-- Rows injected by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             TAB 2: COURSES
+             ───────────────────────────────────────────── -->
+        <div
+          class="tab-content"
+          id="tab-courses"
+          role="tabpanel"
+          aria-labelledby="tab-btn-courses"
+        >
+          <!-- Add Course Panel -->
+          <div class="panel-card" style="margin-bottom:1.5rem">
+            <div class="panel-header">
+              <h3>
+                <i class="fas fa-plus-circle" aria-hidden="true"></i>
+                Add New Course
+              </h3>
+            </div>
+
+            <div class="add-course-form">
+              <form id="addCourseForm" novalidate autocomplete="off">
+                <div class="add-course-row">
+                  <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label" for="newCourseExam">
+                      Exam Type <span class="required" aria-hidden="true">*</span>
+                    </label>
+                    <select
+                      id="newCourseExam"
+                      class="form-control"
+                      required
+                      aria-required="true"
+                    >
+                      <option value="UPSC">UPSC</option>
+                      <option value="UPPCS">UPPCS</option>
+                      <option value="BPSC">BPSC</option>
+                    </select>
+                  </div>
+                  <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label" for="newCourseName">
+                      Course Name <span class="required" aria-hidden="true">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="newCourseName"
+                      class="form-control"
+                      placeholder="e.g. Optional Subject — Sociology"
+                      required
+                      maxlength="120"
+                      aria-required="true"
+                    />
+                  </div>
+                  <div class="form-group" style="margin-bottom:0">
+                    <label class="form-label" for="newCourseDesc">
+                      Description <span class="required" aria-hidden="true">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="newCourseDesc"
+                      class="form-control"
+                      placeholder="Brief description of the course content…"
+                      required
+                      maxlength="300"
+                      aria-required="true"
+                    />
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm" style="margin-top:1rem">
+                  <i class="fas fa-plus" aria-hidden="true"></i>
+                  Add Course
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Course List Panel -->
+          <div class="panel-card">
+            <div class="panel-header">
+              <h3>
+                <i class="fas fa-list" aria-hidden="true"></i>
+                Course Catalogue
+                <span class="courses-count-badge" id="coursesCountBadge" aria-label="number of courses">0</span>
+              </h3>
+              <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap">
+                <select id="coursesMgmtExam" class="form-control" style="width:auto;padding:0.35rem 0.75rem;font-size:0.85rem" aria-label="Filter courses by exam">
+                  <option value="UPSC">UPSC</option>
+                  <option value="UPPCS">UPPCS</option>
+                  <option value="BPSC">BPSC</option>
+                </select>
+                <button id="resetCoursesBtn" class="btn btn-sm" style="
+                  background:rgba(30,58,95,0.07);color:var(--primary);border-color:rgba(30,58,95,0.2)
+                " title="Reset to default courses">
+                  <i class="fas fa-redo" aria-hidden="true"></i> Reset Defaults
+                </button>
+              </div>
+            </div>
+
+            <div class="course-mgmt-list" id="courseMgmtList" aria-label="Course management list" role="list">
+              <!-- Course management cards injected by JS -->
+            </div>
+          </div>
+
+        </div>
+        <!-- / Tab 2 -->
+
+        <!-- ─────────────────────────────────────────────
+             TAB 3: SITE SETTINGS
+             ───────────────────────────────────────────── -->
+        <div
+          class="tab-content"
+          id="tab-site-settings"
+          role="tabpanel"
+          aria-labelledby="tab-btn-site-settings"
+        >
+          <!-- Colors -->
+          <div class="panel-card" style="margin-bottom:1.5rem">
+            <div class="panel-header">
+              <h3><i class="fas fa-palette" aria-hidden="true"></i> Color Theme</h3>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;padding:0.5rem 0">
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Primary Color</label>
+                <div style="display:flex;align-items:center;gap:0.75rem">
+                  <input type="color" id="scPrimaryColor" value="#1e3a5f" style="width:48px;height:38px;border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;padding:2px" />
+                  <input type="text" id="scPrimaryColorHex" class="form-control" value="#1e3a5f" maxlength="7" style="font-family:monospace" placeholder="#1e3a5f" />
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:0">
+                <label class="form-label">Accent Color</label>
+                <div style="display:flex;align-items:center;gap:0.75rem">
+                  <input type="color" id="scAccentColor" value="#f59e0b" style="width:48px;height:38px;border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;padding:2px" />
+                  <input type="text" id="scAccentColorHex" class="form-control" value="#f59e0b" maxlength="7" style="font-family:monospace" placeholder="#f59e0b" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hero Section -->
+          <div class="panel-card" style="margin-bottom:1.5rem">
+            <div class="panel-header">
+              <h3><i class="fas fa-star" aria-hidden="true"></i> Hero Section</h3>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+              <div class="form-group">
+                <label class="form-label">Badge Text</label>
+                <input type="text" id="scHeroBadge" class="form-control" placeholder="India's #1 UPSC Mentorship Platform" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">CTA Button Text</label>
+                <input type="text" id="scHeroCtaText" class="form-control" placeholder="Apply Now — It's Free" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Title (Main)</label>
+                <input type="text" id="scHeroTitleMain" class="form-control" placeholder="Your Journey to" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Title (Highlight)</label>
+                <input type="text" id="scHeroTitleHighlight" class="form-control" placeholder="IAS Starts Here" />
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label class="form-label">Subtitle Paragraph</label>
+                <textarea id="scHeroSubtitle" class="form-control" rows="3" placeholder="Join hundreds of successful civil servants…"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stats Bar -->
+          <div class="panel-card" style="margin-bottom:1.5rem">
+            <div class="panel-header">
+              <h3><i class="fas fa-chart-bar" aria-hidden="true"></i> Statistics Bar</h3>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem" id="scStatsGrid">
+              <div style="background:var(--bg-card,#f8fafc);border-radius:var(--radius-md);padding:1rem">
+                <div style="font-weight:600;margin-bottom:0.75rem;color:var(--primary)">Stat 1</div>
+                <div class="form-group"><label class="form-label">Number</label><input type="number" class="form-control sc-stat-num" data-idx="0" placeholder="500" /></div>
+                <div class="form-group"><label class="form-label">Suffix (+, %, etc.)</label><input type="text" class="form-control sc-stat-suffix" data-idx="0" maxlength="4" placeholder="+" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Label</label><input type="text" class="form-control sc-stat-label" data-idx="0" placeholder="Students Enrolled" /></div>
+              </div>
+              <div style="background:var(--bg-card,#f8fafc);border-radius:var(--radius-md);padding:1rem">
+                <div style="font-weight:600;margin-bottom:0.75rem;color:var(--primary)">Stat 2</div>
+                <div class="form-group"><label class="form-label">Number</label><input type="number" class="form-control sc-stat-num" data-idx="1" placeholder="10" /></div>
+                <div class="form-group"><label class="form-label">Suffix</label><input type="text" class="form-control sc-stat-suffix" data-idx="1" maxlength="4" placeholder="+" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Label</label><input type="text" class="form-control sc-stat-label" data-idx="1" placeholder="Expert Courses" /></div>
+              </div>
+              <div style="background:var(--bg-card,#f8fafc);border-radius:var(--radius-md);padding:1rem">
+                <div style="font-weight:600;margin-bottom:0.75rem;color:var(--primary)">Stat 3</div>
+                <div class="form-group"><label class="form-label">Number</label><input type="number" class="form-control sc-stat-num" data-idx="2" placeholder="95" /></div>
+                <div class="form-group"><label class="form-label">Suffix</label><input type="text" class="form-control sc-stat-suffix" data-idx="2" maxlength="4" placeholder="%" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Label</label><input type="text" class="form-control sc-stat-label" data-idx="2" placeholder="Success Rate" /></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- About Section -->
+          <div class="panel-card" style="margin-bottom:1.5rem">
+            <div class="panel-header">
+              <h3><i class="fas fa-info-circle" aria-hidden="true"></i> About Section</h3>
+            </div>
+            <div style="display:grid;gap:1rem">
+              <div class="form-group">
+                <label class="form-label">Heading</label>
+                <input type="text" id="scAboutHeading" class="form-control" placeholder="Mentorship Rooted in Experience & Excellence" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Paragraph 1</label>
+                <textarea id="scAboutPara1" class="form-control" rows="3"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Paragraph 2</label>
+                <textarea id="scAboutPara2" class="form-control" rows="3"></textarea>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Bullet 1</label><input type="text" id="scBullet0" class="form-control" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Bullet 2</label><input type="text" id="scBullet1" class="form-control" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Bullet 3</label><input type="text" id="scBullet2" class="form-control" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Bullet 4</label><input type="text" id="scBullet3" class="form-control" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Bullet 5</label><input type="text" id="scBullet4" class="form-control" /></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feature Cards -->
+          <div class="panel-card" style="margin-bottom:1.5rem">
+            <div class="panel-header">
+              <h3><i class="fas fa-th-large" aria-hidden="true"></i> Feature Cards (Why Choose Us)</h3>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+              <div style="background:var(--bg-card,#f8fafc);border-radius:var(--radius-md);padding:1rem">
+                <div style="font-weight:600;margin-bottom:0.75rem;color:var(--primary)">Card 1</div>
+                <div class="form-group"><label class="form-label">Icon (Font Awesome class)</label><input type="text" class="form-control sc-feat-icon" data-idx="0" placeholder="fas fa-chalkboard-teacher" /></div>
+                <div class="form-group"><label class="form-label">Title</label><input type="text" class="form-control sc-feat-title" data-idx="0" placeholder="Expert Mentors" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Description</label><textarea class="form-control sc-feat-desc" data-idx="0" rows="2"></textarea></div>
+              </div>
+              <div style="background:var(--bg-card,#f8fafc);border-radius:var(--radius-md);padding:1rem">
+                <div style="font-weight:600;margin-bottom:0.75rem;color:var(--primary)">Card 2</div>
+                <div class="form-group"><label class="form-label">Icon (Font Awesome class)</label><input type="text" class="form-control sc-feat-icon" data-idx="1" placeholder="fas fa-route" /></div>
+                <div class="form-group"><label class="form-label">Title</label><input type="text" class="form-control sc-feat-title" data-idx="1" placeholder="Personalised Roadmap" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Description</label><textarea class="form-control sc-feat-desc" data-idx="1" rows="2"></textarea></div>
+              </div>
+              <div style="background:var(--bg-card,#f8fafc);border-radius:var(--radius-md);padding:1rem">
+                <div style="font-weight:600;margin-bottom:0.75rem;color:var(--primary)">Card 3</div>
+                <div class="form-group"><label class="form-label">Icon (Font Awesome class)</label><input type="text" class="form-control sc-feat-icon" data-idx="2" placeholder="fas fa-pen-nib" /></div>
+                <div class="form-group"><label class="form-label">Title</label><input type="text" class="form-control sc-feat-title" data-idx="2" placeholder="Answer Writing Labs" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Description</label><textarea class="form-control sc-feat-desc" data-idx="2" rows="2"></textarea></div>
+              </div>
+              <div style="background:var(--bg-card,#f8fafc);border-radius:var(--radius-md);padding:1rem">
+                <div style="font-weight:600;margin-bottom:0.75rem;color:var(--primary)">Card 4</div>
+                <div class="form-group"><label class="form-label">Icon (Font Awesome class)</label><input type="text" class="form-control sc-feat-icon" data-idx="3" placeholder="fas fa-satellite-dish" /></div>
+                <div class="form-group"><label class="form-label">Title</label><input type="text" class="form-control sc-feat-title" data-idx="3" placeholder="Live Sessions & Tests" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label">Description</label><textarea class="form-control sc-feat-desc" data-idx="3" rows="2"></textarea></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA Banner -->
+          <div class="panel-card" style="margin-bottom:1.5rem">
+            <div class="panel-header">
+              <h3><i class="fas fa-bullhorn" aria-hidden="true"></i> CTA Banner</h3>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+              <div class="form-group">
+                <label class="form-label">Heading (main text)</label>
+                <input type="text" id="scCtaHeading" class="form-control" placeholder="Ready to Start Your" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Heading (highlighted text)</label>
+                <input type="text" id="scCtaHighlight" class="form-control" placeholder="IAS Journey?" />
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label class="form-label">Subtext</label>
+                <textarea id="scCtaSubtext" class="form-control" rows="2" placeholder="Applications are open…"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Float Card -->
+          <div class="panel-card" style="margin-bottom:1.5rem">
+            <div class="panel-header">
+              <h3><i class="fas fa-id-card" aria-hidden="true"></i> Hero Float Card (desktop)</h3>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem">
+              <div style="background:var(--bg-card,#f8fafc);border-radius:var(--radius-md);padding:1rem">
+                <div style="font-weight:600;margin-bottom:0.5rem;color:var(--primary);font-size:0.85rem">Row 1</div>
+                <div class="form-group"><label class="form-label" style="font-size:0.8rem">Label</label><input type="text" class="form-control sc-fc-label" data-idx="0" placeholder="Active Students" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label" style="font-size:0.8rem">Value</label><input type="text" class="form-control sc-fc-value" data-idx="0" placeholder="500+" /></div>
+              </div>
+              <div style="background:var(--bg-card,#f8fafc);border-radius:var(--radius-md);padding:1rem">
+                <div style="font-weight:600;margin-bottom:0.5rem;color:var(--primary);font-size:0.85rem">Row 2</div>
+                <div class="form-group"><label class="form-label" style="font-size:0.8rem">Label</label><input type="text" class="form-control sc-fc-label" data-idx="1" placeholder="Success Rate" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label" style="font-size:0.8rem">Value</label><input type="text" class="form-control sc-fc-value" data-idx="1" placeholder="95%" /></div>
+              </div>
+              <div style="background:var(--bg-card,#f8fafc);border-radius:var(--radius-md);padding:1rem">
+                <div style="font-weight:600;margin-bottom:0.5rem;color:var(--primary);font-size:0.85rem">Row 3</div>
+                <div class="form-group"><label class="form-label" style="font-size:0.8rem">Label</label><input type="text" class="form-control sc-fc-label" data-idx="2" placeholder="Courses" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label" style="font-size:0.8rem">Value</label><input type="text" class="form-control sc-fc-value" data-idx="2" placeholder="10+" /></div>
+              </div>
+              <div style="background:var(--bg-card,#f8fafc);border-radius:var(--radius-md);padding:1rem">
+                <div style="font-weight:600;margin-bottom:0.5rem;color:var(--primary);font-size:0.85rem">Row 4</div>
+                <div class="form-group"><label class="form-label" style="font-size:0.8rem">Label</label><input type="text" class="form-control sc-fc-label" data-idx="3" placeholder="Expert Mentors" /></div>
+                <div class="form-group" style="margin-bottom:0"><label class="form-label" style="font-size:0.8rem">Value</label><input type="text" class="form-control sc-fc-value" data-idx="3" placeholder="20+" /></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Save Button -->
+          <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap">
+            <button id="saveSiteSettingsBtn" class="btn btn-primary">
+              <i class="fas fa-save" aria-hidden="true"></i> Save All Settings
+            </button>
+            <button id="resetSiteSettingsBtn" class="btn btn-outline">
+              <i class="fas fa-undo" aria-hidden="true"></i> Reset to Defaults
+            </button>
+            <span id="siteSettingsSaveMsg" class="hidden" style="color:#16a34a;font-size:0.9rem;font-weight:600">
+              <i class="fas fa-check-circle"></i> Saved successfully!
+            </span>
+          </div>
+        </div>
+        <!-- / tab-site-settings -->
+
+      </div>
+    </div>
+    <!-- / admin-dashboard -->
+
+  </div>
+  <!-- / dashboardSection -->
+
+  <!-- ═══════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+        UPSC <span>Mentor</span>
+      </div>
+      <p style="font-size:0.82rem">
+        &copy; <span id="footerYear"></span> UPSC Mentor. All rights reserved.
+      </p>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="apply.html">Apply</a>
+        <a href="admin.html">Admin</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- Scroll to Top -->
+  <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top">
+    <i class="fas fa-chevron-up" aria-hidden="true"></i>
+  </button>
+
+  <!-- Firebase SDK (compat) — must load before script.js -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+  <script>
+    document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+    // Init admin page
+    initAdminPage();
+
+    // ── Password toggle ───────────────────────────────────
+    (function() {
+      const toggle = document.getElementById('togglePassword');
+      const input  = document.getElementById('adminPassword');
+      const icon   = document.getElementById('togglePasswordIcon');
+      if (toggle && input && icon) {
+        toggle.addEventListener('click', () => {
+          const isPassword = input.type === 'password';
+          input.type  = isPassword ? 'text' : 'password';
+          icon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
+        });
+      }
+    })();
+
+    // ── Dashboard quick stats update ──────────────────────
+    async function updateDashboardStats() {
+      window._updateDashboardStats = updateDashboardStats; // expose for onSnapshot callback
+      const [admissions, upscCourses, uppsCourses, bpscCourses] = await Promise.all([
+        getAdmissions(),
+        getCourses('UPSC'),
+        getCourses('UPPCS'),
+        getCourses('BPSC')
+      ]);
+      const totalCourses = upscCourses.length + uppsCourses.length + bpscCourses.length;
+      const today        = new Date().toDateString();
+
+      const todayCount = admissions.filter(a => {
+        try { return new Date(a.submittedAt).toDateString() === today; }
+        catch(e) { return false; }
+      }).length;
+
+      const statTotal         = document.getElementById('statTotalAdmissions');
+      const statCourses       = document.getElementById('statTotalCourses');
+      const statToday         = document.getElementById('statTodayAdmissions');
+      const coursesCount      = document.getElementById('coursesCount');
+      const coursesCountBadge = document.getElementById('coursesCountBadge');
+
+      if (statTotal)         statTotal.textContent         = admissions.length;
+      if (statCourses)       statCourses.textContent       = totalCourses;
+      if (statToday)         statToday.textContent         = todayCount;
+      if (coursesCount)      coursesCount.textContent      = totalCourses;
+      if (coursesCountBadge) coursesCountBadge.textContent = totalCourses;
+    }
+
+    updateDashboardStats();
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', updateDashboardStats);
+    });
+
+    // ── Admissions live search ────────────────────────────
+    (function() {
+      const searchInput = document.getElementById('admissionsSearch');
+      if (!searchInput) return;
+
+      searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase().trim();
+        const rows  = document.querySelectorAll('#admissionsBody tr');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          const show = !query || text.includes(query);
+          row.style.display = show ? '' : 'none';
+          if (show) visibleCount++;
+        });
+
+        // Show/hide "no results" in tbody
+        let noResultsRow = document.getElementById('searchNoResults');
+        if (visibleCount === 0 && rows.length > 0) {
+          if (!noResultsRow) {
+            noResultsRow = document.createElement('tr');
+            noResultsRow.id = 'searchNoResults';
+            noResultsRow.innerHTML = `
+              <td colspan="8" style="text-align:center;padding:2rem;color:var(--text-secondary)">
+                <i class="fas fa-search" style="margin-right:0.5rem;color:var(--border)"></i>
+                No results found for "<strong>${query}</strong>"
+              </td>`;
+            document.getElementById('admissionsBody').appendChild(noResultsRow);
+          }
+          noResultsRow.style.display = '';
+        } else if (noResultsRow) {
+          noResultsRow.style.display = 'none';
+        }
+      });
+    })();
+
+    // ── Clear All Admissions ──────────────────────────────
+    (function() {
+      const clearBtn = document.getElementById('clearAdmissionsBtn');
+      if (!clearBtn) return;
+      clearBtn.addEventListener('click', async () => {
+        const admissions = await getAdmissions();
+        if (admissions.length === 0) {
+          showToast('No admissions to clear.', 'info');
+          return;
+        }
+        if (!confirm(`Are you sure you want to permanently delete ALL ${admissions.length} admission record(s)? This cannot be undone.`)) return;
+        await clearAllAdmissions();
+        if (typeof window._renderAdmissions === 'function') await window._renderAdmissions();
+        updateDashboardStats();
+        showToast('All admission records cleared.', 'info');
+      });
+    })();
+
+    // ── Reset Courses to Default ──────────────────────────
+    (function() {
+      const resetBtn = document.getElementById('resetCoursesBtn');
+      if (!resetBtn) return;
+      resetBtn.addEventListener('click', async () => {
+        const examFilter = document.getElementById('coursesMgmtExam');
+        const examType   = examFilter ? examFilter.value : 'UPSC';
+        const defaults   = examType === 'UPPCS' ? DEFAULT_COURSES_UPPCS
+                         : examType === 'BPSC'  ? DEFAULT_COURSES_BPSC
+                         : DEFAULT_COURSES;
+        if (!confirm(`Reset all ${examType} courses to the 5 default courses? Custom courses will be removed.`)) return;
+        await saveCourses(defaults, examType);
+        if (typeof window._renderCourseMgmt === 'function') await window._renderCourseMgmt(examType);
+        updateDashboardStats();
+        showToast(`${examType} courses reset to defaults.`, 'success');
+      });
+    })();
+
+    // ── Tab ARIA update ───────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN" />
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Permissions-Policy" content="geolocation=(), microphone=(), camera=()" />
+  <title>My Profile — UPSC Mentor</title>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════
+       NAVBAR
+       ═══════════════════════════════════════════════════════ -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <div class="container navbar-inner">
+      <a href="index.html" class="navbar-logo" aria-label="UPSC Mentor Home">
+        <div class="logo-icon" aria-hidden="true"><i class="fas fa-graduation-cap"></i></div>
+        <span>UPSC <span class="logo-highlight">Mentor</span></span>
+      </a>
+
+      <button class="navbar-toggle" aria-label="Toggle navigation" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="navbar-nav" role="list">
+        <li><a href="index.html" class="nav-link"><i class="fas fa-home" aria-hidden="true"></i> Home</a></li>
+        <li><a href="apply.html" class="nav-link"><i class="fas fa-file-alt" aria-hidden="true"></i> Apply Now</a></li>
+        <li><a href="profile.html" class="nav-link active" aria-current="page"><i class="fas fa-user-circle" aria-hidden="true"></i> My Profile</a></li>
+        <li id="navAuthItem"></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════
+       PAGE HEADER
+       ═══════════════════════════════════════════════════════ -->
+  <header class="page-header" role="banner">
+    <div class="container page-header-content">
+      <nav aria-label="Breadcrumb" class="breadcrumb" style="margin-bottom:0.75rem">
+        <a href="index.html"><i class="fas fa-home" style="font-size:0.75rem"></i> Home</a>
+        <span class="sep" aria-hidden="true"><i class="fas fa-chevron-right"></i></span>
+        <span class="current">My Profile</span>
+      </nav>
+      <h1><i class="fas fa-user-circle" style="color:var(--accent);margin-right:0.6rem" aria-hidden="true"></i>My Profile</h1>
+      <p style="color:rgba(255,255,255,0.65);font-size:0.95rem;margin-top:0.4rem">
+        View your details and track your course applications.
+      </p>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MAIN CONTENT
+       ═══════════════════════════════════════════════════════ -->
+  <main class="profile-wrapper">
+    <div class="container">
+
+      <!-- Loading state -->
+      <div id="profileLoading" style="text-align:center;padding:4rem 0">
+        <div class="loader-ring" style="margin:0 auto 1rem"></div>
+        <p style="color:var(--text-secondary)">Loading your profile…</p>
+      </div>
+
+      <!-- Profile grid (hidden until loaded) -->
+      <div class="profile-grid hidden" id="profileContent">
+
+        <!-- Left: Profile Card -->
+        <aside>
+          <div class="profile-card" id="profileCard">
+            <!-- Populated by JS -->
+          </div>
+        </aside>
+
+        <!-- Right: Applications -->
+        <div>
+          <div class="applications-panel">
+            <h3>
+              <i class="fas fa-file-alt" style="color:var(--accent)"></i>
+              My Applications
+            </h3>
+            <div id="applicationsList">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════ -->
+  <footer class="footer" role="contentinfo">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+        UPSC <span>Mentor</span>
+      </div>
+      <p style="font-size:0.82rem">&copy; <span id="footerYear"></span> UPSC Mentor. All rights reserved.</p>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="index.html">Home</a>
+        <a href="apply.html">Apply</a>
+        <a href="profile.html">Profile</a>
+      </nav>
+    </div>
+  </footer>
+
+  <button class="scroll-top" id="scrollTopBtn" aria-label="Scroll to top">
+    <i class="fas fa-chevron-up" aria-hidden="true"></i>
+  </button>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+  <script src="script.js"></script>
+  <script>
+    document.getElementById('footerYear').textContent = new Date().getFullYear();
+
+    // Apply site config (colors) from Firestore
+    getSiteConfig().then(applySiteConfig);
+
+    // Override initProfilePage to show/hide loading state
+    getAuth().onAuthStateChanged(async user => {
+      const loading = document.getElementById('profileLoading');
+      const content = document.getElementById('profileContent');
+
+      if (!user || !user.emailVerified) {
+        if (loading) loading.innerHTML = `
+          <div style="text-align:center;padding:3rem 0">
+            <div style="font-size:3rem;color:var(--accent);margin-bottom:1rem">
+              <i class="fas fa-lock"></i>
+            </div>
+            <h3 style="margin-bottom:0.5rem;color:var(--primary-dark)">Please Login</h3>
+            <p style="color:var(--text-secondary);margin-bottom:1.5rem">You need to be logged in to view your profile.</p>
+            <button class="btn btn-primary" onclick="showAuthModal('login')">
+              <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+          </div>`;
+        return;
+      }
+
+      if (loading) loading.classList.add('hidden');
+      if (content) content.classList.remove('hidden');
+
+      initProfilePage();
+    });
+  </script>
+</body>
+</html>
