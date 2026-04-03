@@ -19,7 +19,7 @@ const EMAILJS_CONFIG = {
   publicKey:   '7XUDyVJArJDw76JT5',
   serviceId:   'service_i06t216',
   templateId:  'template_burp5li',
-  adminEmail:  'bookstalkwithv@gmail.com'
+  adminEmail:  'booithv@gmail.com'
 };
 
 /* ─── Firebase Configuration ─────────────────────────────────
