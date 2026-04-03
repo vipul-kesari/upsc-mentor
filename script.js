@@ -16,10 +16,10 @@
    5. Replace the placeholder strings below with your real keys
    ──────────────────────────────────────────────────────────── */
 const EMAILJS_CONFIG = {
-  publicKey:   'YOUR_PUBLIC_KEY',
-  serviceId:   'YOUR_SERVICE_ID',
-  templateId:  'YOUR_TEMPLATE_ID',
-  adminEmail:  'your-email@gmail.com'
+  publicKey:   '7XUDyVJArJDw76JT5',
+  serviceId:   'service_i06t216',
+  templateId:  'template_burp5li',
+  adminEmail:  'bookstalkwithv@gmail.com'
 };
 
 /* ─── Firebase Configuration ─────────────────────────────────
